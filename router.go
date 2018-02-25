@@ -107,6 +107,7 @@ func NewRoute(moduleSource *Module, method, path, action, fixedArgs, routesPath 
 		line:         line,
 	}
 
+
 	// URL pattern
 	if !strings.HasPrefix(r.Path, "/") {
 		routerLog.Error("NewRoute: Absolute URL required.")
@@ -461,6 +462,8 @@ func parseRoutes(moduleSource *Module, routesPath, joinedPath, content string, v
 
 		// A single route
 		method, path, action, fixedArgs, found := parseRouteLine(line)
+		fmt.Println("*********"+method+"*********"+path+"*********"+action+"*********")
+		fmt.Println("routesPath="+routesPath)
 		if !found {
 			continue
 		}
@@ -471,6 +474,13 @@ func parseRoutes(moduleSource *Module, routesPath, joinedPath, content string, v
 		if strings.HasSuffix(joinedPath, "/") && strings.HasPrefix(path, "/") {
 			joinedPath = joinedPath[0 : len(joinedPath)-1]
 		}
+
+		if strings.HasPrefix(path, "/admin") {
+			actions := strings.Split(action,".")
+			actions[0] = actions[0]+"Controller"
+			action = strings.Join(actions,".")
+		}
+
 		path = strings.Join([]string{AppRoot, joinedPath, path}, "")
 
 		// This will import the module routes under the path described in the
@@ -485,6 +495,9 @@ func parseRoutes(moduleSource *Module, routesPath, joinedPath, content string, v
 			routes = append(routes, moduleRoutes...)
 			continue
 		}
+
+
+
 
 		route := NewRoute(moduleSource, method, path, action, fixedArgs, routesPath, n)
 		routes = append(routes, route)
@@ -795,6 +808,8 @@ func HTTPMethodOverride(c *Controller, fc []Filter) {
 	verbs := []string{"POST", "PUT", "PATCH", "DELETE"}
 
 	method := strings.ToUpper(c.Request.Method)
+
+	AppLog.Error(method+"sssss")
 
 	if method == "POST" {
 		param := ""
